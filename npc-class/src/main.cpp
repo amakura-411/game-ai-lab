@@ -56,8 +56,7 @@ class NpcCharacter {
     int healPoint = -1;
     while (true) {
       cout << "どれくらい回復しますか？" << '\n';
-      cin >> healPoint;
-      if (cin.fail()) {
+      if (!(cin >> healPoint)) {
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
         cout << "数値を入力してください" << '\n';
@@ -139,8 +138,7 @@ auto main() -> int {
       index++;
     }
     int option = 0;
-    cin >> option;
-    if (cin.fail()) {
+    if (!(cin >> option)) {
       cin.clear();
       cin.ignore(numeric_limits<streamsize>::max(), '\n');
       cout << "数値を入力してください" << '\n';
