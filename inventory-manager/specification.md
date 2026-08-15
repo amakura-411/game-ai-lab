@@ -48,7 +48,7 @@ CLIから次の操作を行えること。
 呼び出し側は `nullptr` かどうかを確認し、存在しない場合はエラーメッセージを表示する。
 
 ```cpp
-Product* product = searchByID(products, id);
+Product* product = searchById(products, id);
 
 if (product == nullptr) {
     // 商品が存在しない場合の処理
@@ -63,9 +63,10 @@ if (product == nullptr) {
 
 正常な場合、指定した商品の在庫数を増やすこと。
 
+商品IDが存在しない場合は、新規商品として登録すること（商品名・価格・入荷数を入力させる）。
+
 次の場合は在庫を変更しないこと。
 
-- 商品IDが存在しない
 - 入荷数が0以下
 
 商品の在庫数を実際に変更するため、対象の商品は参照渡しで扱う。
@@ -159,7 +160,7 @@ struct Product {
     std::string id;
     std::string name;
     int price;
-    int stock;
+    int quantity;
 };
 ```
 
@@ -201,25 +202,7 @@ std::vector<Product> products;
 
 ### 商品検索に失敗した場合
 
-空の `Product` は返さない。
-
-商品が見つかった場合：
-
-```cpp
-Product*
-```
-
-を返す。
-
-商品が見つからなかった場合：
-
-```cpp
-nullptr
-```
-
-を返す。
-
-`nullptr` は「現在どの商品も指していないポインタ」として扱う。
+`nullptr` を返す。
 
 エラーメッセージは、検索結果を受け取った側で表示する。
 
@@ -264,7 +247,7 @@ void showAll(const std::vector<Product>& products);
 関数名：
 
 ```cpp
-searchByID
+searchById
 ```
 
 戻り値：
@@ -293,12 +276,16 @@ arrival
 void
 ```
 
-商品の在庫数を変更するため、対象商品は参照渡しで受け取る。
+商品IDの検索から在庫数の変更まで、この関数が担当する。
+
+指定した商品IDが存在しない場合は、新規商品として `products` に追加する（`std::vector::push_back()` を使用）。
+
+商品一覧を変更するため、`products` は参照渡しで受け取る。
 
 イメージ：
 
 ```cpp
-void arrival(Product& product, int amount);
+void arrival(std::vector<Product>& products);
 ```
 
 ---
@@ -317,12 +304,14 @@ sell
 void
 ```
 
-商品の在庫数を変更するため、対象商品は参照渡しで受け取る。
+商品IDの検索から在庫数の変更まで、この関数が担当する。
+
+商品一覧を変更するため、`products` は参照渡しで受け取る。
 
 イメージ：
 
 ```cpp
-void sell(Product& product, int amount);
+void sell(std::vector<Product>& products);
 ```
 
 ---
@@ -574,13 +563,11 @@ nullptr
 
 在庫数が0の商品について、一覧画面で在庫切れと分かるようにする。
 
-### 2. 商品追加
+### 2. 商品追加（実装済み）
 
 CLIから新しい商品を追加できるようにする。
 
-同じ商品IDは登録できないようにする。
-
-`std::vector::push_back()` を使用して商品を追加する。
+`arrival`（入荷）機能に統合済み。未登録の商品IDを入荷しようとした場合、新規商品として登録する。
 
 ### 3. 操作履歴
 
