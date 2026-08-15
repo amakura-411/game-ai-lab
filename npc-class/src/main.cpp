@@ -1,4 +1,6 @@
+#include <algorithm>
 #include <iostream>
+#include <limits>
 #include <string>
 #include <vector>
 using namespace std;
@@ -10,20 +12,15 @@ struct Stats {
 };
 
 class NpcCharacter {
+  const string name;  // 名前
+  int hp;             // HP
+  const Stats stats;  // 能力値
 
-  string name; // 名前
-  int hp;      // HP
-  Stats stats; // 能力値
-
-public:
-  NpcCharacter(const string &n, const Stats &st) {
-    this->name = n;
-    this->hp = st.maxHp;
-    this->stats = st;
-  }
+ public:
+  NpcCharacter(const string& n, const Stats& st) : name(n), hp(st.maxHp), stats(st) {}
 
   // 攻撃
-  void attack(NpcCharacter &target) const {
+  void attack(NpcCharacter& target) const {
     int damagePoint = damageCalculation(target.stats.defensePower);
     if (damagePoint > 0) {
       cout << name << "が" << target.name << "を攻撃！" << endl;
@@ -59,20 +56,23 @@ public:
     while (true) {
       cout << "どれくらい回復しますか？" << endl;
       cin >> healPoint;
-      if (healPoint > 0)
-        break;
+      if (cin.fail()) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "数値を入力してください" << endl;
+        continue;
+      }
+      if (healPoint > 0) break;
       cout << "0より大きい数値を指定してください" << endl;
     }
     heal(healPoint);
     showHp();
   }
 
-private:
+ private:
   bool isAlive() const { return hp > 0; }
 
-  void showAlreadyDeadMessage() const {
-    cout << name << "はすでに死んでいる！" << endl;
-  }
+  void showAlreadyDeadMessage() const { cout << name << "はすでに死んでいる！" << endl; }
   void showHp() const {
     cout << name << endl;
     cout << "HP: " << hp << " / " << stats.maxHp << endl;
@@ -88,25 +88,24 @@ private:
 
   // ダメージ
   void takeDamage(int damage) {
-    hp = max(hp - damage, 0);
+    hp = std::max(hp - damage, 0);
     showHp();
   }
 
   // 回復
-  void heal(int healPoint) { hp = min(hp + healPoint, stats.maxHp); }
+  void heal(int healPoint) { hp = std::min(hp + healPoint, stats.maxHp); }
 };
 
 // NPC一覧・ステータス表示
-void showNpcList(const vector<NpcCharacter> &npcs) {
+void showNpcList(const vector<NpcCharacter>& npcs) {
   cout << "[NPC一覧・ステータス表示]" << endl;
-  for (const auto &npc : npcs) {
+  for (const auto& npc : npcs) {
     npc.displayStatus();
     cout << endl;
   }
 }
 
 int main() {
-
   vector<NpcCharacter> npcCharacters;
   NpcCharacter slime("slime", {3, 1, 1});
   NpcCharacter dragon("ドラゴン", {50, 10, 10});
@@ -126,35 +125,35 @@ int main() {
     };
 
     int index = 1;
-    for (const auto &action : actions) {
+    for (const auto& action : actions) {
       cout << index << ". " << action << endl;
       index++;
     }
     int option = 0;
     cin >> option;
     switch (option) {
-    case 1:
-      showNpcList(npcCharacters);
-      break;
-    case 2:
-      npcCharacters[0].attack(npcCharacters[1]);
-      break;
-    case 3:
-      npcCharacters[1].attack(npcCharacters[0]);
-      break;
-    case 4:
-      npcCharacters[0].restoreHp();
-      break;
-    case 5:
-      npcCharacters[1].restoreHp();
-      break;
-    case 6:
-      cout << "プログラムを終了します" << endl;
-      return 0;
-    default:
-      cout << "不正値を検出しました。プログラムを終了します\n" << endl;
-      return -1;
+      case 1:
+        showNpcList(npcCharacters);
+        break;
+      case 2:
+        npcCharacters[0].attack(npcCharacters[1]);
+        break;
+      case 3:
+        npcCharacters[1].attack(npcCharacters[0]);
+        break;
+      case 4:
+        npcCharacters[0].restoreHp();
+        break;
+      case 5:
+        npcCharacters[1].restoreHp();
+        break;
+      case 6:
+        cout << "プログラムを終了します" << endl;
+        return 0;
+      default:
+        cout << "不正値を検出しました。プログラムを終了します\n" << endl;
+        return -1;
     }
     cout << endl;
-  };
+  }
 }
